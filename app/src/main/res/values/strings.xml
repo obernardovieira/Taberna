@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Taberna</string>
+    <string name="bebidas">Bebidas</string>
+    <string name="comidas">Comidas</string>
+    <string name="finalizar">Finalizar</string>
+    <string name="nova_compra">Nova Compra</string>
+</resources>
