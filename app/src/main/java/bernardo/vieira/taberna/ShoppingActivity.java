@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,22 +16,33 @@ public class ShoppingActivity extends Activity {
 
     private GridLayout mainGrid;
     private LinearLayout layoutBuyList;
+    private Shopping shopping;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopping);
 
+        shopping = new Shopping();
+        // get id's
         mainGrid = findViewById(R.id.mainGrid);
         layoutBuyList = findViewById(R.id.layout_listaCompra);
 
+        // load content
         loadTabContent(0);
 
-
+        // add listener
         TabLayout tabLayout = findViewById(R.id.item_type_tab);
         tabLayout.addOnTabSelectedListener(tabSelectListener);
     }
 
+    public void finishShopping(View view) {
+        Toast.makeText(ShoppingActivity.this, shopping.getItems().toString(), Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Setup listener or tab change
+     */
     private TabLayout.OnTabSelectedListener tabSelectListener = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
@@ -48,6 +60,10 @@ public class ShoppingActivity extends Activity {
         }
     };
 
+    /**
+     * Load content when changing tab
+     * @param tab tab id
+     */
     private void loadTabContent(int tab) {
         String[] content;
         if (tab == 0) {
@@ -55,27 +71,52 @@ public class ShoppingActivity extends Activity {
         } else {
             content = randomDataFood();
         }
+        // remove all existing content
         mainGrid.removeAllViews();
+        // iterate over each new one and add
         for (String s: content)
         {
-            LayoutInflater mainInflater = LayoutInflater.from(this);
+            // create card view
+            LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
             CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
-            ((TextView) mainLayout .findViewById(R.id.cardText)).setText(s);
-            mainLayout.setOnClickListener(view -> {
+            // set text on card view
+            ((TextView) mainLayout.findViewById(R.id.cardText)).setText(s);
+            // setup a click listener or the card view
+            mainLayout.setOnClickListener(viewLayout -> {
+                // when clicked, add a new item in buy list by...
+                // creating a linear layout
                 LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
                 LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
+                // setting the item text on the list
                 ((TextView)layout.findViewById(R.id.item_name)).setText(s);
+                // setup a click listener
+                layout.setOnClickListener(viewItem -> {
+                    // if clicked, remove from view
+                    shopping.removeItem(s);
+                    layoutBuyList.removeView(viewItem);
+                });
+                // add to view
+                shopping.addItem(s);
                 layoutBuyList.addView(layout);
-                Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
             });
+            // add to view
             mainGrid.addView(mainLayout);
         }
     }
 
+    /**
+     * Get some random data
+     * @return an array of random data
+     */
     private String[] randomDataDrinks() {
         return new String[] {"Cerveja", "Agua"};
     }
 
+    /**
+     * Get some random data
+     * @return an array of random data
+     */
     private String[] randomDataFood() {
         return new String[] {"Bifana", "Fatia Bolo"};
     }
