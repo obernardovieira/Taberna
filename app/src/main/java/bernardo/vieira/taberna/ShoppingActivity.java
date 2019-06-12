@@ -2,6 +2,8 @@ package bernardo.vieira.taberna;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
@@ -10,10 +12,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.URL;
 
 
 public class ShoppingActivity extends Activity {
@@ -33,7 +38,7 @@ public class ShoppingActivity extends Activity {
         layoutBuyList = findViewById(R.id.layout_listaCompra);
 
         // load content
-        loadTabContent(0);
+        new Thread(() -> loadTabContent(0)).start();
 
         // add listener
         TabLayout tabLayout = findViewById(R.id.item_type_tab);
@@ -77,7 +82,7 @@ public class ShoppingActivity extends Activity {
     private TabLayout.OnTabSelectedListener tabSelectListener = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
-            loadTabContent(tab.getPosition());
+            new Thread(() -> loadTabContent(tab.getPosition())).start();
         }
 
         @Override
@@ -103,37 +108,47 @@ public class ShoppingActivity extends Activity {
             content = randomDataFood();
         }
         // remove all existing content
-        mainGrid.removeAllViews();
+        runOnUiThread(() ->mainGrid.removeAllViews());
         // iterate over each new one and add
         for (Item item: content)
         {
-            // create card view
-            LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
-            CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
-            // set text on card view
-            ((TextView) mainLayout.findViewById(R.id.cardText)).setText(item.getName());
-            // setup a click listener or the card view
-            mainLayout.setOnClickListener(viewLayout -> {
-                // when clicked, add a new item in buy list by...
-                // creating a linear layout
-                LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
-                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
-                // setting the item text on the list
-                ((TextView)layout.findViewById(R.id.item_price)).setText(item.getPrice() + "€");
-                ((TextView)layout.findViewById(R.id.item_name)).setText(item.getName());
-                // setup a click listener
-                layout.setOnClickListener(viewItem -> {
-                    // if clicked, remove from view
-                    shopping.removeItem(item);
-                    layoutBuyList.removeView(viewItem);
+            try {
+                // create card view
+                LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
+                CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
+                // set image on card view
+                URL url = new URL(item.getUrl());
+                Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                runOnUiThread(() -> {
+                    ((ImageView) mainLayout.findViewById(R.id.item_image)).setImageBitmap(bmp);
+                    // set text on card view
+                    ((TextView) mainLayout.findViewById(R.id.item_name)).setText(item.getName());
+                    // setup a click listener or the card view
+                    mainLayout.setOnClickListener(viewLayout -> {
+                        // when clicked, add a new item in buy list by...
+                        // creating a linear layout
+                        LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
+                        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
+                        // setting the item text on the list
+                        ((TextView) layout.findViewById(R.id.item_price)).setText(item.getPrice() + "€");
+                        ((TextView) layout.findViewById(R.id.item_name)).setText(item.getName());
+                        // setup a click listener
+                        layout.setOnClickListener(viewItem -> {
+                            // if clicked, remove from view
+                            shopping.removeItem(item);
+                            layoutBuyList.removeView(viewItem);
+                        });
+                        // add to view
+                        shopping.addItem(item);
+                        layoutBuyList.addView(layout);
+                        // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
+                    });
+                    // add to view
+                    mainGrid.addView(mainLayout);
                 });
-                // add to view
-                shopping.addItem(item);
-                layoutBuyList.addView(layout);
-                // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
-            });
-            // add to view
-            mainGrid.addView(mainLayout);
+            } catch (IOException ex) {
+                //
+            }
         }
     }
 
@@ -143,8 +158,8 @@ public class ShoppingActivity extends Activity {
      */
     private Item[] randomDataDrinks() {
         return new Item[] {
-                new Item("Cerveja", 5.3f),
-                new Item("Agua", 2.1f),
+                new Item("Cerveja", "https://http2.mlstatic.com/cerveja-budweiser-550ml-D_NQ_NP_888656-MLB28446973474_102018-Q.jpg",5.3f),
+                new Item("Agua", "https://www.decathlon.pt/media/836/8367345/big_459796.jpg", 2.1f),
         };
     }
 
@@ -154,8 +169,8 @@ public class ShoppingActivity extends Activity {
      */
     private Item[] randomDataFood() {
         return new Item[] {
-                new Item("Bifana", 7.2f),
-                new Item("Fatia Bolo", 3.4f),
+                new Item("Bifana", "https://nit.pt/wp-content/uploads/2018/04/44c80d8aecbac8e27c30fbdf2f9daf2b-754x394.jpg",7.2f),
+                new Item("Fatia Bolo","https://i.ytimg.com/vi/XrTjOTYGtM8/hqdefault.jpg", 3.4f),
         };
     }
 }

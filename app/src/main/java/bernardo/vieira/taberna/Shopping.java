@@ -14,7 +14,7 @@ class Shopping {
         items.remove(item);
     }
 
-    public float getTotalPrice() {
+    float getTotalPrice() {
         float total = .0f;
         for(Item item: items) {
             total += item.getPrice();
