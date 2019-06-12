@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="400dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:fontFamily="monospace"
+        android:text="@string/payment_method"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp" />
+
+    <RadioGroup
+        android:id="@+id/payment_method"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewEnd">
+
+        <RadioButton
+            android:id="@+id/radio_payment_money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/money"
+            android:textAlignment="center" />
+
+        <RadioButton
+            android:id="@+id/radio_payment_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/card" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/layout_payment_money"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/et_received_money_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Received Amount"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_payment_tax"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Include Tax Number" />
+
+    <LinearLayout
+        android:id="@+id/layout_payment_tax"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/et_payment_tax"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Tax Number"
+            android:inputType="number" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_finish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish" />
+
+</LinearLayout>

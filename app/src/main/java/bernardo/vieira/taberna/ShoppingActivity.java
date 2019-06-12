@@ -1,13 +1,17 @@
 package bernardo.vieira.taberna;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +41,27 @@ public class ShoppingActivity extends Activity {
     }
 
     public void finishShopping(View view) {
-        Toast.makeText(ShoppingActivity.this, shopping.getItems().toString(), Toast.LENGTH_SHORT).show();
+        Dialog dialog = new Dialog(ShoppingActivity.this);
+        dialog.setContentView(R.layout.finish_shopping);
+
+        LinearLayout layoutPaymentMoney = dialog.findViewById(R.id.layout_payment_money);
+        LinearLayout layoutPaymentTax = dialog.findViewById(R.id.layout_payment_tax);
+        //
+        RadioGroup rgPaymentMethod = dialog.findViewById(R.id.payment_method);
+        rgPaymentMethod.setOnCheckedChangeListener((RadioGroup radioGroup, int i) -> {
+            if (R.id.radio_payment_card == i) {
+                layoutPaymentMoney.setVisibility(View.GONE);
+            } else {
+                layoutPaymentMoney.setVisibility(View.VISIBLE);
+            }
+        });
+        //
+        CheckBox cbWithTaxNumber = dialog.findViewById(R.id.cb_payment_tax);
+        cbWithTaxNumber.setOnCheckedChangeListener((CompoundButton compoundButton, boolean b) -> {
+            layoutPaymentTax.setVisibility((b) ? View.VISIBLE : View.GONE);
+        });
+
+        dialog.show();
     }
 
     /**
