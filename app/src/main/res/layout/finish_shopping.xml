@@ -15,6 +15,14 @@
         android:textColor="#FFFFFF"
         android:textSize="30sp" />
 
+    <TextView
+        android:id="@+id/tv_total_price_shopping"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total: %f€"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
     <RadioGroup
         android:id="@+id/payment_method"
         android:layout_width="wrap_content"

@@ -4,17 +4,21 @@ import java.util.ArrayList;
 
 class Shopping {
 
-    private ArrayList<String> items = new ArrayList<>();
+    private ArrayList<Item> items = new ArrayList<>();
 
-    void addItem(String name) {
-        items.add(name);
+    void addItem(Item item) {
+        items.add(item);
     }
 
-    void removeItem(String name) {
-        items.remove(name);
+    void removeItem(Item item) {
+        items.remove(item);
     }
 
-    ArrayList<String> getItems() {
-        return items;
+    public float getTotalPrice() {
+        float total = .0f;
+        for(Item item: items) {
+            total += item.getPrice();
+        }
+        return total;
     }
 }

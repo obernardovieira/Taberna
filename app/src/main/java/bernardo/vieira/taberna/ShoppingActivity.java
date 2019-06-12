@@ -40,13 +40,18 @@ public class ShoppingActivity extends Activity {
         tabLayout.addOnTabSelectedListener(tabSelectListener);
     }
 
+    /**
+     * Setup listener to finish shopping
+     * @param view android view!
+     */
     public void finishShopping(View view) {
+        // start creating dialog
         Dialog dialog = new Dialog(ShoppingActivity.this);
         dialog.setContentView(R.layout.finish_shopping);
-
+        // get id's
         LinearLayout layoutPaymentMoney = dialog.findViewById(R.id.layout_payment_money);
         LinearLayout layoutPaymentTax = dialog.findViewById(R.id.layout_payment_tax);
-        //
+        // program radio group actions
         RadioGroup rgPaymentMethod = dialog.findViewById(R.id.payment_method);
         rgPaymentMethod.setOnCheckedChangeListener((RadioGroup radioGroup, int i) -> {
             if (R.id.radio_payment_card == i) {
@@ -55,12 +60,14 @@ public class ShoppingActivity extends Activity {
                 layoutPaymentMoney.setVisibility(View.VISIBLE);
             }
         });
-        //
+        // program checkbox actions
         CheckBox cbWithTaxNumber = dialog.findViewById(R.id.cb_payment_tax);
         cbWithTaxNumber.setOnCheckedChangeListener((CompoundButton compoundButton, boolean b) -> {
             layoutPaymentTax.setVisibility((b) ? View.VISIBLE : View.GONE);
         });
-
+        // set price
+        ((TextView) dialog.findViewById(R.id.tv_total_price_shopping)).setText("Total " + shopping.getTotalPrice() + "€");
+        // show dialog
         dialog.show();
     }
 
@@ -89,7 +96,7 @@ public class ShoppingActivity extends Activity {
      * @param tab tab id
      */
     private void loadTabContent(int tab) {
-        String[] content;
+        Item[] content;
         if (tab == 0) {
             content = randomDataDrinks();
         } else {
@@ -98,13 +105,13 @@ public class ShoppingActivity extends Activity {
         // remove all existing content
         mainGrid.removeAllViews();
         // iterate over each new one and add
-        for (String s: content)
+        for (Item item: content)
         {
             // create card view
             LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
             CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
             // set text on card view
-            ((TextView) mainLayout.findViewById(R.id.cardText)).setText(s);
+            ((TextView) mainLayout.findViewById(R.id.cardText)).setText(item.getName());
             // setup a click listener or the card view
             mainLayout.setOnClickListener(viewLayout -> {
                 // when clicked, add a new item in buy list by...
@@ -112,15 +119,16 @@ public class ShoppingActivity extends Activity {
                 LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
                 LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
                 // setting the item text on the list
-                ((TextView)layout.findViewById(R.id.item_name)).setText(s);
+                ((TextView)layout.findViewById(R.id.item_price)).setText(item.getPrice() + "€");
+                ((TextView)layout.findViewById(R.id.item_name)).setText(item.getName());
                 // setup a click listener
                 layout.setOnClickListener(viewItem -> {
                     // if clicked, remove from view
-                    shopping.removeItem(s);
+                    shopping.removeItem(item);
                     layoutBuyList.removeView(viewItem);
                 });
                 // add to view
-                shopping.addItem(s);
+                shopping.addItem(item);
                 layoutBuyList.addView(layout);
                 // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
             });
@@ -133,15 +141,21 @@ public class ShoppingActivity extends Activity {
      * Get some random data
      * @return an array of random data
      */
-    private String[] randomDataDrinks() {
-        return new String[] {"Cerveja", "Agua"};
+    private Item[] randomDataDrinks() {
+        return new Item[] {
+                new Item("Cerveja", 5.3f),
+                new Item("Agua", 2.1f),
+        };
     }
 
     /**
      * Get some random data
      * @return an array of random data
      */
-    private String[] randomDataFood() {
-        return new String[] {"Bifana", "Fatia Bolo"};
+    private Item[] randomDataFood() {
+        return new Item[] {
+                new Item("Bifana", 7.2f),
+                new Item("Fatia Bolo", 3.4f),
+        };
     }
 }
