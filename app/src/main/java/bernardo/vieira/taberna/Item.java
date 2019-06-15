@@ -1,15 +1,17 @@
 package bernardo.vieira.taberna;
 
+import android.graphics.Bitmap;
+
 import java.util.Objects;
 
 public class Item {
     private String name;
-    private String url;
+    private Bitmap bmp;
     private float price;
 
-    Item(String name, String url, float price) {
+    Item(String name, Bitmap bmp, float price) {
         this.name = name;
-        this.url = url;
+        this.bmp = bmp;
         this.price = price;
     }
 
@@ -17,8 +19,8 @@ public class Item {
         return name;
     }
 
-    String getUrl() {
-        return url;
+    Bitmap getBmp() {
+        return bmp;
     }
 
     float getPrice() {

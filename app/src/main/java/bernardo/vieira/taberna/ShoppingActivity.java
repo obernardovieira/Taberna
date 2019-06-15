@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class ShoppingActivity extends Activity {
@@ -32,6 +33,8 @@ public class ShoppingActivity extends Activity {
     private LinearLayout layoutBuyList;
     private Shopping shopping;
     private Dialog dialogFinishShopping;
+    private ArrayList<Item> food;
+    private ArrayList<Item> drinks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +47,11 @@ public class ShoppingActivity extends Activity {
         layoutBuyList = findViewById(R.id.layout_listaCompra);
 
         // load content
-        new Thread(() -> loadTabContent(0)).start();
+        new Thread(() -> {
+            food = randomDataFood();
+            drinks = randomDataDrinks();
+            runOnUiThread(()-> loadTabContent(0));
+        }).start();
 
         // add listener
         TabLayout tabLayout = findViewById(R.id.item_type_tab);
@@ -133,7 +140,7 @@ public class ShoppingActivity extends Activity {
     private TabLayout.OnTabSelectedListener tabSelectListener = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
-            new Thread(() -> loadTabContent(tab.getPosition())).start();
+            loadTabContent(tab.getPosition());
         }
 
         @Override
@@ -152,54 +159,47 @@ public class ShoppingActivity extends Activity {
      * @param tab tab id
      */
     private void loadTabContent(int tab) {
-        Item[] content;
+        ArrayList<Item> content;
         if (tab == 0) {
-            content = randomDataDrinks();
+            content = drinks;
         } else {
-            content = randomDataFood();
+            content = food;
         }
         // remove all existing content
-        runOnUiThread(() ->mainGrid.removeAllViews());
+        mainGrid.removeAllViews();
         // iterate over each new one and add
         for (Item item: content)
         {
-            try {
-                // create card view
-                LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
-                CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
-                // set image on card view
-                URL url = new URL(item.getUrl());
-                Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                runOnUiThread(() -> {
-                    ((ImageView) mainLayout.findViewById(R.id.item_image)).setImageBitmap(bmp);
-                    // set text on card view
-                    ((TextView) mainLayout.findViewById(R.id.item_name)).setText(item.getName());
-                    // setup a click listener or the card view
-                    mainLayout.setOnClickListener(viewLayout -> {
-                        // when clicked, add a new item in buy list by...
-                        // creating a linear layout
-                        LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
-                        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
-                        // setting the item text on the list
-                        ((TextView) layout.findViewById(R.id.item_price)).setText(item.getPrice() + "€");
-                        ((TextView) layout.findViewById(R.id.item_name)).setText(item.getName());
-                        // setup a click listener
-                        layout.setOnClickListener(viewItem -> {
-                            // if clicked, remove from view
-                            shopping.removeItem(item);
-                            layoutBuyList.removeView(viewItem);
-                        });
-                        // add to view
-                        shopping.addItem(item);
-                        layoutBuyList.addView(layout);
-                        // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
-                    });
-                    // add to view
-                    mainGrid.addView(mainLayout);
+            // create card view
+            LayoutInflater mainInflater = LayoutInflater.from(ShoppingActivity.this);
+            CardView mainLayout = (CardView) mainInflater.inflate(R.layout.item_shoping_grid, null, false);
+            // set image on card view
+            ((ImageView) mainLayout.findViewById(R.id.item_image)).setImageBitmap(item.getBmp());
+            // set text on card view
+            ((TextView) mainLayout.findViewById(R.id.item_name)).setText(item.getName());
+            // setup a click listener or the card view
+            mainLayout.setOnClickListener(viewLayout -> {
+                // when clicked, add a new item in buy list by...
+                // creating a linear layout
+                LayoutInflater inflater = LayoutInflater.from(ShoppingActivity.this);
+                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.item_buy_list, null, false);
+                // setting the item text on the list
+                ((ImageView) layout.findViewById(R.id.item_image)).setImageBitmap(item.getBmp());
+                ((TextView) layout.findViewById(R.id.item_price)).setText(item.getPrice() + "€");
+                ((TextView) layout.findViewById(R.id.item_name)).setText(item.getName());
+                // setup a click listener
+                layout.setOnClickListener(viewItem -> {
+                    // if clicked, remove from view
+                    shopping.removeItem(item);
+                    layoutBuyList.removeView(viewItem);
                 });
-            } catch (IOException ex) {
-                //
-            }
+                // add to view
+                shopping.addItem(item);
+                layoutBuyList.addView(layout);
+                // Toast.makeText(ShoppingActivity.this, "Clicked " + s, Toast.LENGTH_SHORT).show();
+            });
+            // add to view
+            mainGrid.addView(mainLayout);
         }
     }
 
@@ -207,21 +207,49 @@ public class ShoppingActivity extends Activity {
      * Get some random data
      * @return an array of random data
      */
-    private Item[] randomDataDrinks() {
-        return new Item[] {
-                new Item("Cerveja", "https://http2.mlstatic.com/cerveja-budweiser-550ml-D_NQ_NP_888656-MLB28446973474_102018-Q.jpg",5.3f),
-                new Item("Agua", "https://www.decathlon.pt/media/836/8367345/big_459796.jpg", 2.1f),
-        };
+    private ArrayList<Item> randomDataDrinks() {
+        Bitmap bmpCerveja;
+        Bitmap bmpAgua;
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            bmpCerveja = BitmapFactory.decodeStream(
+                    new URL("https://http2.mlstatic.com/cerveja-budweiser-550ml-D_NQ_NP_888656-MLB28446973474_102018-Q.jpg")
+                            .openConnection().getInputStream()
+            );
+            bmpAgua = BitmapFactory.decodeStream(
+                    new URL("https://www.decathlon.pt/media/836/8367345/big_459796.jpg")
+                            .openConnection().getInputStream()
+            );
+            items.add(new Item("Cerveja", bmpCerveja,5.3f));
+            items.add(new Item("Agua", bmpAgua, 2.1f));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 
     /**
      * Get some random data
      * @return an array of random data
      */
-    private Item[] randomDataFood() {
-        return new Item[] {
-                new Item("Bifana", "https://nit.pt/wp-content/uploads/2018/04/44c80d8aecbac8e27c30fbdf2f9daf2b-754x394.jpg",7.2f),
-                new Item("Fatia Bolo","https://i.ytimg.com/vi/XrTjOTYGtM8/hqdefault.jpg", 3.4f),
-        };
+    private ArrayList<Item> randomDataFood() {
+        Bitmap bmpBifana;
+        Bitmap bmpFatiaBolo;
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            bmpBifana = BitmapFactory.decodeStream(
+                    new URL("https://nit.pt/wp-content/uploads/2018/04/44c80d8aecbac8e27c30fbdf2f9daf2b-754x394.jpg")
+                            .openConnection().getInputStream()
+            );
+            bmpFatiaBolo = BitmapFactory.decodeStream(
+                    new URL("https://i.ytimg.com/vi/XrTjOTYGtM8/hqdefault.jpg")
+                            .openConnection().getInputStream()
+            );
+            items.add(new Item("Bifana", bmpBifana,7.2f));
+            items.add(new Item("Fatia Bolo",bmpFatiaBolo, 3.4f));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 }
