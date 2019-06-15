@@ -7,15 +7,20 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,6 +31,7 @@ public class ShoppingActivity extends Activity {
     private GridLayout mainGrid;
     private LinearLayout layoutBuyList;
     private Shopping shopping;
+    private Dialog dialogFinishShopping;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +52,35 @@ public class ShoppingActivity extends Activity {
     }
 
     /**
-     * Setup listener to finish shopping
+     * Setup listener to finish shopping and register to DB!
      * @param view android view!
      */
     public void finishShopping(View view) {
-        // start creating dialog
-        Dialog dialog = new Dialog(ShoppingActivity.this);
-        dialog.setContentView(R.layout.finish_shopping);
         // get id's
-        LinearLayout layoutPaymentMoney = dialog.findViewById(R.id.layout_payment_money);
-        LinearLayout layoutPaymentTax = dialog.findViewById(R.id.layout_payment_tax);
+        RadioGroup groupPaymentMethod = dialogFinishShopping.findViewById(R.id.payment_method);
+        RadioButton paymentMoney = dialogFinishShopping.findViewById(R.id.radio_payment_money);
+        // if paying with money, get the difference
+        if (groupPaymentMethod.getCheckedRadioButtonId() == paymentMoney.getId()) {
+            EditText etReceivedMoney = dialogFinishShopping.findViewById(R.id.et_received_money_amount);
+            float returnAmount = Float.parseFloat(etReceivedMoney.getText().toString()) - shopping.getTotalPrice();
+        }
+        // get items
+        // save to database
+    }
+
+    /**
+     * Setup listener to open finish shopping
+     * @param view android view!
+     */
+    public void openFinishShopping(View view) {
+        // start creating dialog
+        dialogFinishShopping = new Dialog(ShoppingActivity.this);
+        dialogFinishShopping.setContentView(R.layout.finish_shopping);
+        // get id's
+        LinearLayout layoutPaymentMoney = dialogFinishShopping.findViewById(R.id.layout_payment_money);
+        LinearLayout layoutPaymentTax = dialogFinishShopping.findViewById(R.id.layout_payment_tax);
         // program radio group actions
-        RadioGroup rgPaymentMethod = dialog.findViewById(R.id.payment_method);
+        RadioGroup rgPaymentMethod = dialogFinishShopping.findViewById(R.id.payment_method);
         rgPaymentMethod.setOnCheckedChangeListener((RadioGroup radioGroup, int i) -> {
             if (R.id.radio_payment_card == i) {
                 layoutPaymentMoney.setVisibility(View.GONE);
@@ -66,15 +89,43 @@ public class ShoppingActivity extends Activity {
             }
         });
         // program checkbox actions
-        CheckBox cbWithTaxNumber = dialog.findViewById(R.id.cb_payment_tax);
+        CheckBox cbWithTaxNumber = dialogFinishShopping.findViewById(R.id.cb_payment_tax);
         cbWithTaxNumber.setOnCheckedChangeListener((CompoundButton compoundButton, boolean b) -> {
             layoutPaymentTax.setVisibility((b) ? View.VISIBLE : View.GONE);
         });
         // set price
-        ((TextView) dialog.findViewById(R.id.tv_total_price_shopping)).setText("Total " + shopping.getTotalPrice() + "€");
+        ((TextView) dialogFinishShopping.findViewById(R.id.tv_total_price_shopping)).setText("Total " + shopping.getTotalPrice() + "€");
+        ((EditText) dialogFinishShopping.findViewById(R.id.et_received_money_amount)).addTextChangedListener(textWatcherMoneyReturnAmount);
         // show dialog
-        dialog.show();
+        dialogFinishShopping.show();
     }
+
+    /**
+     * Watcher to text change.
+     */
+    private TextWatcher textWatcherMoneyReturnAmount = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            EditText etReceivedMoney = dialogFinishShopping.findViewById(R.id.et_received_money_amount);
+            TextView tvMoneyReturn = dialogFinishShopping.findViewById(R.id.tv_return_money_amount);
+            if (etReceivedMoney.getText().length() == 0) {
+                tvMoneyReturn.setText("Return: 0€");
+            } else {
+                float returnAmount = Float.parseFloat(etReceivedMoney.getText().toString()) - shopping.getTotalPrice();
+                tvMoneyReturn.setText("Return: " + returnAmount + "€");
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+    };
 
     /**
      * Setup listener or tab change
