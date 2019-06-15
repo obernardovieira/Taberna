@@ -2,9 +2,13 @@ package bernardo.vieira.taberna;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
@@ -25,6 +29,9 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+
+import static bernardo.vieira.taberna.ShoppingListContract.*;
 
 
 public class ShoppingActivity extends Activity {
@@ -73,6 +80,10 @@ public class ShoppingActivity extends Activity {
         }
         // get items
         // save to database
+        long insetResult = new ShoppingListDbHelper(this).insert();
+        if (insetResult != -1) {
+            dialogFinishShopping.dismiss();
+        }
     }
 
     /**

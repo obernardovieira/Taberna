@@ -13,8 +13,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void goCompraActivity(View view) {
+    public void goShoppingActivity(View view) {
         Intent intent = new Intent(this, ShoppingActivity.class);
+        startActivity(intent);
+    }
+    public void goListShoppingsActivity(View view) {
+        Intent intent = new Intent(this, ListShoppingsActivity.class);
         startActivity(intent);
     }
 }

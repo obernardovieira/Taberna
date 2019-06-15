@@ -6,14 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/button_novaCompra"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nova_compra"
-        android:onClick="goCompraActivity"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/bt_newShopping"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="goShoppingActivity"
+            android:text="New Shopping" />
+
+        <Button
+            android:id="@+id/bt_listShoppings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="goListShoppingsActivity"
+            android:text="List Shoppings" />
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
