@@ -49,6 +49,8 @@ public class ShoppingListDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NAME_TAX_NUMBER, taxNumber);
         values.put(COLUMN_NAME_DATE, new Timestamp(System.currentTimeMillis()).getTime() / 1000);
 
+        System.out.println("timestamp " + new Timestamp(System.currentTimeMillis()).getTime());
+
         // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(TABLE_NAME, null, values);
         db.close();

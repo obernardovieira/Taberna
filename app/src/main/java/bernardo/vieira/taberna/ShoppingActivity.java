@@ -1,8 +1,10 @@
 package bernardo.vieira.taberna;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -70,19 +72,42 @@ public class ShoppingActivity extends Activity {
      * @param view android view!
      */
     public void finishShopping(View view) {
+        long insetResult;
+        int taxNumber = 0;
         // get id's
         RadioGroup groupPaymentMethod = dialogFinishShopping.findViewById(R.id.payment_method);
         RadioButton paymentMoney = dialogFinishShopping.findViewById(R.id.radio_payment_money);
+        EditText etTaxNUmber = dialogFinishShopping.findViewById(R.id.et_payment_tax);
+        if (etTaxNUmber.getText().toString().length() > 0) {
+            taxNumber = Integer.parseInt(etTaxNUmber.getText().toString());
+        }
         // if paying with money, get the difference
         if (groupPaymentMethod.getCheckedRadioButtonId() == paymentMoney.getId()) {
             EditText etReceivedMoney = dialogFinishShopping.findViewById(R.id.et_received_money_amount);
-            float returnAmount = Float.parseFloat(etReceivedMoney.getText().toString()) - shopping.getTotalPrice();
+            float received = Float.parseFloat(etReceivedMoney.getText().toString());
+            float returnAmount = received - shopping.getTotalPrice();
+            insetResult = new ShoppingListDbHelper(this).insert(0, received, returnAmount, taxNumber);
+        } else {
+            insetResult = new ShoppingListDbHelper(this).insert(1, shopping.getTotalPrice(), 0, taxNumber);
         }
         // get items
         // save to database
-        long insetResult = new ShoppingListDbHelper(this).insert();
         if (insetResult != -1) {
             dialogFinishShopping.dismiss();
+            layoutBuyList.removeAllViews();
+            shopping = new Shopping();
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(ShoppingActivity.this);
+            builder.setMessage("Shopping finished successfully!")
+                .setPositiveButton("Ok", (DialogInterface dialog, int id) -> {
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Close", (DialogInterface dialog, int id) -> {
+                    dialog.dismiss();
+                });
+            // Create the AlertDialog object and return it
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

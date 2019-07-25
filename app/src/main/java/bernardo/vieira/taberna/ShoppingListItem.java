@@ -14,4 +14,24 @@ public class ShoppingListItem {
         this.taxNumber = taxNumber;
         this.date = date;
     }
+
+    public int getPayedWith() {
+        return payedWith;
+    }
+
+    public float getReceived() {
+        return received;
+    }
+
+    public float getReturned() {
+        return returned;
+    }
+
+    public int getTaxNumber() {
+        return taxNumber;
+    }
+
+    public int getDate() {
+        return date;
+    }
 }
